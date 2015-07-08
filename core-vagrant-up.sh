@@ -20,7 +20,7 @@ args=("$@")
 hostname=${args[0]}
 
 if [ -z "${args[0]}" ]; then
-    select hostname in devstack maritime sysla offshore offshore-mysql wntt varnish-offshore CUSTOM
+    select hostname in devstack maritime sysla offshore offshore-mysql wntt varnish-offshore symfony-template CUSTOM
     do
         break
     done
@@ -66,6 +66,12 @@ case $hostname in
     IP=192.168.36.17
     PORT=8093
     VM_HOSTNAME=varnish-offshore.lh
+    break
+    ;;
+  symfony-template)
+    IP=192.168.36.18
+    PORT=8094
+    VM_HOSTNAME=symfony-template.lh
     break
     ;;
   CUSTOM)
@@ -164,7 +170,12 @@ if [ -f ".dockercfg.TEMPLATE" ]; then
       read -p "Enter dockerhub auth:" DOCKER_USER_AUTH
     fi
 
-    sed "s/<EMAIL>/$DOCKER_USER_EMAIL/;s/<AUTH>/$DOCKER_USER_AUTH/" < .dockercfg.TEMPLATE > .dockercfg
+    DOCKER_QUAY_AUTH=$(cat credentials.yml | grep DOCKER_QUAY_AUTH | sed "s/.*://")
+    if [ ! "$DOCKER_QUAY_AUTH" ]; then
+      read -p "Enter quay.io auth:" DOCKER_QUAY_AUTH
+    fi
+
+    sed "s/<EMAIL>/$DOCKER_USER_EMAIL/;s/<AUTH>/$DOCKER_USER_AUTH/;s/<QUAY_AUTH>/$DOCKER_QUAY_AUTH/" < .dockercfg.TEMPLATE > .dockercfg
   fi
 fi
 
